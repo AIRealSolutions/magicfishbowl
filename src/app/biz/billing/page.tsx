@@ -24,6 +24,7 @@ export default async function BillingPage() {
     : null
 
   const tiers: SubscriptionTier[] = ['starter', 'pro', 'agency']
+  const tierRank: Record<SubscriptionTier, number> = { starter: 0, pro: 1, agency: 2 }
 
   return (
     <div>
@@ -106,7 +107,7 @@ export default async function BillingPage() {
                   href={`/api/billing/checkout?plan=${t}`}
                   className="btn-primary w-full justify-center text-sm"
                 >
-                  {tier === 'starter' || t > tier ? 'Upgrade' : 'Switch'} to {t}
+                  {tierRank[t] > tierRank[tier] ? 'Upgrade' : 'Switch'} to {t}
                 </a>
               )}
             </div>

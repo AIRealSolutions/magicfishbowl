@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
-import DiscoverClient from './DiscoverClient'
+import dynamic from 'next/dynamic'
+
+const DiscoverClient = dynamic(() => import('./DiscoverClient'), { ssr: false })
 
 export default async function DiscoverPage() {
   const supabase = await createClient()

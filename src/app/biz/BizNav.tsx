@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Tag, Users, ScanLine, CreditCard,
-  LogOut, Menu, X, UserCog, ChevronDown
+  LogOut, Menu, X, UserCog
 } from 'lucide-react'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { MapPin, Search, SlidersHorizontal, X } from 'lucide-react'
 import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
 import { getCategoryEmoji, CATEGORIES } from '@/lib/utils'
 
 interface Offer {
