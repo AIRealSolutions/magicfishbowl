@@ -11,8 +11,8 @@ interface Redemption {
   id: string
   confirmed_at: string | null
   scan_method: string
-  offers: { title: string } | null
-  merchants: { business_name: string; category: string } | null
+  offers: { title: string }[] | null
+  merchants: { business_name: string; category: string }[] | null
 }
 
 interface Props {
@@ -162,10 +162,10 @@ export default function VirtualCard({ member, redemptions }: Props) {
             ) : (
               redemptions.map((r) => (
                 <div key={r.id} className="rounded-xl bg-white/10 backdrop-blur p-4 flex items-start gap-3">
-                  <div className="text-2xl">{getCategoryEmoji(r.merchants?.category ?? 'other')}</div>
+                  <div className="text-2xl">{getCategoryEmoji(r.merchants?.[0]?.category ?? 'other')}</div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-white text-sm truncate">{r.merchants?.business_name}</div>
-                    <div className="text-xs text-white/70 truncate">{r.offers?.title}</div>
+                    <div className="font-semibold text-white text-sm truncate">{r.merchants?.[0]?.business_name}</div>
+                    <div className="text-xs text-white/70 truncate">{r.offers?.[0]?.title}</div>
                     <div className="text-xs text-white/50 mt-0.5">
                       {r.confirmed_at ? new Date(r.confirmed_at).toLocaleDateString() : '—'}
                       {' · '}{r.scan_method.toUpperCase()}
