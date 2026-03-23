@@ -2,15 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-02-24.acacia' })
-
-const PRICE_IDS: Record<string, string> = {
-  starter: process.env.STRIPE_PRICE_STARTER!,
-  pro: process.env.STRIPE_PRICE_PRO!,
-  agency: process.env.STRIPE_PRICE_AGENCY!,
-}
-
 export async function GET(req: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-02-24.acacia' })
+  const PRICE_IDS: Record<string, string> = {
+    starter: process.env.STRIPE_PRICE_STARTER!,
+    pro: process.env.STRIPE_PRICE_PRO!,
+    agency: process.env.STRIPE_PRICE_AGENCY!,
+  }
   try {
     const plan = req.nextUrl.searchParams.get('plan') ?? 'starter'
     const priceId = PRICE_IDS[plan]
