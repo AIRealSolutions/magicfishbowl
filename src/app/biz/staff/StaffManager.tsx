@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, UserCog, Loader2, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Plus, UserCog, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface StaffMember {

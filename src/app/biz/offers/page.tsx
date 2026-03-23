@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Tag, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Plus, Tag } from 'lucide-react'
 import OfferToggle from './OfferToggle'
 
 export default async function OffersPage() {
