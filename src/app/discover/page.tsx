@@ -10,7 +10,7 @@ export default async function DiscoverPage() {
     .from('merchants')
     .select(`
       id, business_name, category, address, lat, lng, logo_url,
-      offers ( id, title, offer_type, discount_value )
+      offers ( id, title, offer_type, discount_value, is_active )
     `)
     .eq('is_live', true)
     .not('lat', 'is', null)
@@ -18,7 +18,7 @@ export default async function DiscoverPage() {
 
   const mapMerchants = (merchants ?? []).map((m) => ({
     ...m,
-    offers: Array.isArray(m.offers) ? m.offers.filter((o: { is_active?: boolean }) => o.is_active !== false) : [],
+    offers: Array.isArray(m.offers) ? m.offers.filter((o) => o.is_active !== false) : [],
   }))
 
   return <DiscoverClient merchants={mapMerchants} />
