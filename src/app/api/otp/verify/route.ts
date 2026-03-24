@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     if (existingMember?.user_id) {
       // Returning member — reset their password so they can sign in
       const temp_password = uuidv4()
-      const { error: updateError } = await supabase.auth.admin.updateUser(
+      const { error: updateError } = await supabase.auth.admin.updateUserById(
         existingMember.user_id,
         { password: temp_password }
       )

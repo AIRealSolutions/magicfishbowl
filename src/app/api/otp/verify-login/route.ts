@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     // Set a fresh temp password so client can sign in
     const temp_password = uuidv4()
-    const { error: updateError } = await supabase.auth.admin.updateUser(
+    const { error: updateError } = await supabase.auth.admin.updateUserById(
       member.user_id,
       { password: temp_password }
     )
