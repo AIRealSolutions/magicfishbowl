@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Users, Download } from 'lucide-react'
+import ContactsEmailPanel from './ContactsEmailPanel'
 
 export default async function ContactsPage({
   searchParams,
@@ -20,6 +21,13 @@ export default async function ContactsPage({
     .single()
 
   if (!merchant) redirect('/biz')
+
+  const { count: optedInCount } = await supabase
+    .from('crm_contacts')
+    .select('*', { count: 'exact', head: true })
+    .eq('merchant_id', merchant.id)
+    .eq('email_opt_in', true)
+    .not('email', 'is', null)
 
   let query = supabase
     .from('crm_contacts')
@@ -52,6 +60,8 @@ export default async function ContactsPage({
           Export CSV
         </a>
       </div>
+
+      <ContactsEmailPanel optedInCount={optedInCount ?? 0} />
 
       {/* Search */}
       <form method="GET" className="mb-5">

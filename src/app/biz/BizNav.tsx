@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Tag, Users, ScanLine, CreditCard,
-  LogOut, Menu, X, UserCog
+  LogOut, Menu, X, UserCog, Settings
 } from 'lucide-react'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -27,6 +27,7 @@ const NAV = [
   { href: '/biz/scan', label: 'Scanner', icon: ScanLine },
   { href: '/biz/staff', label: 'Staff', icon: UserCog },
   { href: '/biz/billing', label: 'Billing', icon: CreditCard },
+  { href: '/biz/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function BizNav({ merchant }: { merchant: Merchant }) {

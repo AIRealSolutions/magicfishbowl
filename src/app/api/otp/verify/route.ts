@@ -36,7 +36,27 @@ export async function POST(req: NextRequest) {
     // Mark OTP as used
     await supabase.from('phone_otps').update({ used: true }).eq('id', otpRecord.id)
 
-    // Create Supabase Auth user with temp password
+    // Check if member already exists (returning member login)
+    const { data: existingMember } = await supabase
+      .from('members')
+      .select('id, user_id')
+      .eq('phone', phone)
+      .maybeSingle()
+
+    if (existingMember?.user_id) {
+      // Returning member — reset their password so they can sign in
+      const temp_password = uuidv4()
+      const { error: updateError } = await supabase.auth.admin.updateUser(
+        existingMember.user_id,
+        { password: temp_password }
+      )
+      if (updateError) {
+        return NextResponse.json({ error: updateError.message }, { status: 400 })
+      }
+      return NextResponse.json({ success: true, temp_password, is_returning: true })
+    }
+
+    // New member — create Supabase Auth user with temp password
     const temp_password = uuidv4()
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
@@ -59,7 +79,6 @@ export async function POST(req: NextRequest) {
     })
 
     if (memberError) {
-      // Cleanup auth user if member insert fails
       await supabase.auth.admin.deleteUser(authData.user.id)
       return NextResponse.json({ error: memberError.message }, { status: 400 })
     }
