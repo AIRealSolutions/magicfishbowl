@@ -29,7 +29,9 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Protect /biz routes (merchant dashboard)
-  if (pathname.startsWith('/biz/') && pathname !== '/biz' && pathname !== '/biz/signup') {
+  // Allow /biz (public signup/login form)
+  // Protect everything under /biz/ except the public form
+  if (pathname.startsWith('/biz/')) {
     if (!user) {
       return NextResponse.redirect(new URL('/biz?login=1', request.url))
     }
