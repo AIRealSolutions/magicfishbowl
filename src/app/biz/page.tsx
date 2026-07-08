@@ -74,48 +74,60 @@ function BizPageInner() {
     setLoading(true)
     try {
       console.log('Starting signup for:', form.email)
-      // Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-      })
-      console.log('Auth response:', { authError, userId: authData?.user?.id })
 
-      if (authError) throw authError
-      if (!authData.user) throw new Error('Account creation failed')
+      // Step 1: Create auth user
+      try {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: form.email,
+          password: form.password,
+        })
+        console.log('Auth response:', { authError, userId: authData?.user?.id })
 
-      // Create merchant record via API (uses service role to bypass RLS)
-      console.log('Creating merchant for user:', authData.user.id)
-      const merchantResponse = await fetch('/api/merchants/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: authData.user.id,
-          business_name: form.business_name,
-          category: form.category,
-          address: form.address || null,
-          subscription_tier: form.plan,
-          subscription_status: 'trialing',
-        }),
-      })
+        if (authError) throw new Error(`Auth failed: ${authError.message}`)
+        if (!authData.user) throw new Error('Auth succeeded but no user returned')
 
-      console.log('Merchant response status:', merchantResponse.status)
-      const merchantData = await merchantResponse.json()
-      console.log('Merchant response:', merchantData)
+        // Step 2: Create merchant record via API
+        try {
+          console.log('Creating merchant for user:', authData.user.id)
+          const merchantResponse = await fetch('/api/merchants/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: authData.user.id,
+              business_name: form.business_name,
+              category: form.category,
+              address: form.address || null,
+              subscription_tier: form.plan,
+              subscription_status: 'trialing',
+            }),
+          })
 
-      if (!merchantResponse.ok) {
-        throw new Error(merchantData.error || `Failed to create business profile (${merchantResponse.status})`)
+          console.log('Merchant response status:', merchantResponse.status)
+
+          if (!merchantResponse.ok) {
+            const errorData = await merchantResponse.json()
+            throw new Error(`API Error (${merchantResponse.status}): ${errorData.error || 'Unknown error'}`)
+          }
+
+          const merchantData = await merchantResponse.json()
+          console.log('Merchant created:', merchantData)
+
+          toast.success('Welcome to MagicFishbowl! Redirecting to your dashboard...')
+          console.log('Signup successful, redirecting to dashboard')
+
+          // Use a longer timeout to ensure auth is synced
+          setTimeout(() => {
+            console.log('Executing redirect to /biz/dashboard')
+            router.push('/biz/dashboard')
+          }, 1500)
+        } catch (merchantErr: unknown) {
+          throw new Error(`Merchant creation failed: ${merchantErr instanceof Error ? merchantErr.message : 'Unknown error'}`)
+        }
+      } catch (authErr: unknown) {
+        throw authErr
       }
-
-      toast.success('Welcome to MagicFishbowl! Redirecting to your dashboard...')
-      console.log('Signup successful, redirecting to dashboard')
-      // Use a longer timeout to ensure auth is synced
-      setTimeout(() => {
-        console.log('Executing redirect to /biz/dashboard')
-        router.push('/biz/dashboard')
-      }, 1500)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Signup failed'
+      const message = err instanceof Error ? err.message : 'Signup failed - unknown error'
       console.error('Signup error:', err)
       setError(message)
       toast.error(message)
