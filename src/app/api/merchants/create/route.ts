@@ -20,6 +20,20 @@ export async function POST(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
+    // First, verify the auth user exists
+    const { data: authUser, error: authCheckError } = await supabase.auth.admin.getUserById(user_id)
+
+    if (authCheckError || !authUser.user) {
+      console.error('Auth user verification failed:', authCheckError)
+      return NextResponse.json(
+        {
+          error: 'Your account is not yet fully created. Please try signing up again or refresh and wait a moment before clicking "Start Free Trial".',
+          details: authCheckError?.message
+        },
+        { status: 400 }
+      )
+    }
+
     // Create merchant record
     const { data, error } = await supabase.from('merchants').insert({
       owner_user_id: user_id,
