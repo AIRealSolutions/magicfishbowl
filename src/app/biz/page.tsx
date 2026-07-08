@@ -49,7 +49,22 @@ function BizPageInner() {
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
     if (signupStep === 'account') {
+      // Validate email and password before proceeding
+      if (!form.email || !form.password) {
+        toast.error('Email and password are required')
+        return
+      }
+      if (form.password.length < 8) {
+        toast.error('Password must be at least 8 characters')
+        return
+      }
       setSignupStep('business')
+      return
+    }
+
+    // Validate business details
+    if (!form.business_name || !form.category) {
+      toast.error('Business name and category are required')
       return
     }
 
@@ -61,23 +76,30 @@ function BizPageInner() {
         password: form.password,
       })
       if (authError) throw authError
-      if (!authData.user) throw new Error('Signup failed')
+      if (!authData.user) throw new Error('Account creation failed')
 
       // Create merchant record
       const { error: merchantError } = await supabase.from('merchants').insert({
         owner_user_id: authData.user.id,
         business_name: form.business_name,
         category: form.category,
-        address: form.address,
+        address: form.address || null,
         subscription_tier: form.plan,
         subscription_status: 'trialing',
       })
-      if (merchantError) throw merchantError
+      if (merchantError) {
+        // If merchant creation fails, try to clean up the auth user
+        console.error('Merchant creation failed:', merchantError)
+        throw new Error(merchantError.message || 'Failed to create business profile')
+      }
 
       toast.success('Welcome to MagicFishbowl! Redirecting to your dashboard...')
-      setTimeout(() => router.push('/biz/dashboard'), 1200)
+      // Use a longer timeout to ensure auth is synced
+      setTimeout(() => router.push('/biz/dashboard'), 1500)
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Signup failed')
+      const message = err instanceof Error ? err.message : 'Signup failed'
+      console.error('Signup error:', err)
+      toast.error(message)
     } finally {
       setLoading(false)
     }
@@ -193,7 +215,11 @@ function BizPageInner() {
               </>
             )}
 
-            <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
+            <button
+              type="submit"
+              disabled={loading || (mode === 'signup' && signupStep === 'business' && (!form.business_name || !form.category))}
+              className="btn-primary w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {loading
                 ? 'Please wait...'
