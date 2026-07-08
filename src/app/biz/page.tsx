@@ -144,6 +144,9 @@ function BizPageInner() {
     }
   }
 
+  const showAccountStep = mode === 'login' || signupStep === 'account'
+  const showBusinessStep = mode === 'signup' && signupStep === 'business'
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-brand-50 to-white flex flex-col">
       <div className="px-6 pt-6">
@@ -174,7 +177,7 @@ function BizPageInner() {
           {/* Mode toggle */}
           <div className="flex gap-1 rounded-xl bg-gray-100 p-1 mb-6">
             <button
-              onClick={() => { setMode('signup'); setError(''); }}
+              onClick={() => { setMode('signup'); setError(''); setSignupStep('account'); }}
               className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${mode === 'signup' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`}
             >
               Sign Up
@@ -187,7 +190,8 @@ function BizPageInner() {
             </button>
           </div>
 
-          <form onSubmit={mode === 'login' ? handleLogin : handleSignup} className="space-y-4">
+          {showAccountStep || showBusinessStep ? (
+            <form onSubmit={mode === 'login' ? handleLogin : handleSignup} className="space-y-4">
             {/* Signup step 1: Account */}
             {(mode === 'login' || signupStep === 'account') && (
               <>
@@ -283,7 +287,12 @@ function BizPageInner() {
                 ← Back
               </button>
             )}
-          </form>
+            </form>
+          ) : (
+            <div className="text-center py-8 text-red-600">
+              <p>Form error. Try refreshing the page.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
