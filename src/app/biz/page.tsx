@@ -110,10 +110,11 @@ function BizPageInner() {
           })
 
           console.log('Merchant response status:', merchantResponse.status)
+          const merchantData = await merchantResponse.json()
+          console.log('Merchant API response:', merchantData)
 
           if (!merchantResponse.ok) {
-            const errorData = await merchantResponse.json()
-            throw new Error(`API Error (${merchantResponse.status}): ${errorData.error || 'Unknown error'}`)
+            throw new Error(`API Error (${merchantResponse.status}): ${merchantData.error || 'Unknown error'}\n\nDetails: ${merchantData.details || ''}`)
           }
 
           const merchantData = await merchantResponse.json()
