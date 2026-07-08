@@ -70,15 +70,19 @@ function BizPageInner() {
 
     setLoading(true)
     try {
+      console.log('Starting signup for:', form.email)
       // Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
       })
+      console.log('Auth response:', { authError, userId: authData?.user?.id })
+
       if (authError) throw authError
       if (!authData.user) throw new Error('Account creation failed')
 
       // Create merchant record via API (uses service role to bypass RLS)
+      console.log('Creating merchant for user:', authData.user.id)
       const merchantResponse = await fetch('/api/merchants/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,14 +96,21 @@ function BizPageInner() {
         }),
       })
 
+      console.log('Merchant response status:', merchantResponse.status)
+      const merchantData = await merchantResponse.json()
+      console.log('Merchant response:', merchantData)
+
       if (!merchantResponse.ok) {
-        const error = await merchantResponse.json()
-        throw new Error(error.error || 'Failed to create business profile')
+        throw new Error(merchantData.error || `Failed to create business profile (${merchantResponse.status})`)
       }
 
       toast.success('Welcome to MagicFishbowl! Redirecting to your dashboard...')
+      console.log('Signup successful, redirecting to dashboard')
       // Use a longer timeout to ensure auth is synced
-      setTimeout(() => router.push('/biz/dashboard'), 1500)
+      setTimeout(() => {
+        console.log('Executing redirect to /biz/dashboard')
+        router.push('/biz/dashboard')
+      }, 1500)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Signup failed'
       console.error('Signup error:', err)
