@@ -77,13 +77,20 @@ function BizPageInner() {
 
       // Step 1: Create auth user
       try {
+        console.log('Supabase config:', {
+          url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+          hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        })
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
         })
         console.log('Auth response:', { authError, userId: authData?.user?.id })
 
-        if (authError) throw new Error(`Auth failed: ${authError.message}`)
+        if (authError) {
+          const errorMsg = authError.message || JSON.stringify(authError) || 'Unknown auth error'
+          throw new Error(`Auth failed: ${errorMsg}`)
+        }
         if (!authData.user) throw new Error('Auth succeeded but no user returned')
 
         // Step 2: Create merchant record via API
