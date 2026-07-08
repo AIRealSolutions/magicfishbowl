@@ -78,19 +78,22 @@ function BizPageInner() {
       if (authError) throw authError
       if (!authData.user) throw new Error('Account creation failed')
 
-      // Create merchant record
-      const { error: merchantError } = await supabase.from('merchants').insert({
-        owner_user_id: authData.user.id,
-        business_name: form.business_name,
-        category: form.category,
-        address: form.address || null,
-        subscription_tier: form.plan,
-        subscription_status: 'trialing',
+      // Create merchant record via API (uses service role to bypass RLS)
+      const merchantResponse = await fetch('/api/merchants/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          business_name: form.business_name,
+          category: form.category,
+          address: form.address || null,
+          subscription_tier: form.plan,
+          subscription_status: 'trialing',
+        }),
       })
-      if (merchantError) {
-        // If merchant creation fails, try to clean up the auth user
-        console.error('Merchant creation failed:', merchantError)
-        throw new Error(merchantError.message || 'Failed to create business profile')
+
+      if (!merchantResponse.ok) {
+        const error = await merchantResponse.json()
+        throw new Error(error.error || 'Failed to create business profile')
       }
 
       toast.success('Welcome to MagicFishbowl! Redirecting to your dashboard...')
