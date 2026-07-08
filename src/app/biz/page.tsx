@@ -17,6 +17,7 @@ function BizPageInner() {
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
   const [signupStep, setSignupStep] = useState<'account' | 'business'>('account')
+  const [error, setError] = useState<string>('')
 
   const [form, setForm] = useState({
     email: '',
@@ -31,6 +32,7 @@ function BizPageInner() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
+    setError('')
     setLoading(true)
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -48,6 +50,7 @@ function BizPageInner() {
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
+    setError('')
     if (signupStep === 'account') {
       // Validate email and password before proceeding
       if (!form.email || !form.password) {
@@ -114,6 +117,7 @@ function BizPageInner() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Signup failed'
       console.error('Signup error:', err)
+      setError(message)
       toast.error(message)
     } finally {
       setLoading(false)
@@ -140,16 +144,23 @@ function BizPageInner() {
             </p>
           </div>
 
+          {/* Error message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
           {/* Mode toggle */}
           <div className="flex gap-1 rounded-xl bg-gray-100 p-1 mb-6">
             <button
-              onClick={() => setMode('signup')}
+              onClick={() => { setMode('signup'); setError(''); }}
               className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${mode === 'signup' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`}
             >
               Sign Up
             </button>
             <button
-              onClick={() => setMode('login')}
+              onClick={() => { setMode('login'); setError(''); }}
               className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${mode === 'login' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`}
             >
               Sign In
