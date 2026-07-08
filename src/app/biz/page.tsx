@@ -83,6 +83,7 @@ function BizPageInner() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          user_id: authData.user.id,
           business_name: form.business_name,
           category: form.category,
           address: form.address || null,

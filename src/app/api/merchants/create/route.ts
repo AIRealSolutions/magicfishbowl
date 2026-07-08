@@ -1,65 +1,28 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { business_name, category, address, subscription_tier, subscription_status } = body
+    const { business_name, category, address, subscription_tier, subscription_status, user_id } = body
 
     // Verify required fields
-    if (!business_name || !category) {
+    if (!business_name || !category || !user_id) {
       return NextResponse.json(
-        { error: 'Business name and category are required' },
+        { error: 'Business name, category, and user_id are required' },
         { status: 400 }
       )
     }
 
-    // Get the current user from the auth cookie
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options as any)
-            )
-          },
-        },
-      }
-    )
-
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
     // Use admin client for inserting (bypasses RLS)
-    const adminSupabase = createServerClient(
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return []
-          },
-          setAll() {},
-        },
-      }
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
     // Create merchant record
-    const { data, error } = await adminSupabase.from('merchants').insert({
-      owner_user_id: user.id,
+    const { data, error } = await supabase.from('merchants').insert({
+      owner_user_id: user_id,
       business_name,
       category,
       address: address || null,
