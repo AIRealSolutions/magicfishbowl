@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react'
@@ -10,24 +10,28 @@ import { CATEGORIES } from '@/lib/utils'
 
 type Mode = 'login' | 'signup'
 
-function BizPageInner() {
+export default function BizPage() {
   const router = useRouter()
   const params = useSearchParams()
-  const [mode, setMode] = useState<Mode>(params.get('login') === '1' ? 'login' : 'signup')
+  const formRef = useRef<HTMLFormElement>(null)
+
+  // Initialize mode and plan from URL params
+  const initialMode = params?.get('login') === '1' ? 'login' : 'signup'
+  const initialPlan = params?.get('plan') ?? 'starter'
+
+  const [mode, setMode] = useState<Mode>(initialMode)
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
   const [signupStep, setSignupStep] = useState<'account' | 'business'>('account')
   const [error, setError] = useState<string>('')
-  const [pageError, setPageError] = useState<string>('')
 
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-    business_name: '',
-    category: '',
-    address: '',
-    plan: params.get('plan') ?? 'starter',
-  })
+  // Use refs for form values to avoid re-renders clearing them
+  const emailRef = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
+  const businessNameRef = useRef<HTMLInputElement>(null)
+  const categoryRef = useRef<HTMLSelectElement>(null)
+  const addressRef = useRef<HTMLInputElement>(null)
+  const planRef = useRef<string>(initialPlan)
 
   const supabase = createClient()
 
@@ -42,12 +46,15 @@ function BizPageInner() {
     return () => window.removeEventListener('error', handleError)
   }, [])
 
-  async function handleLogin(e: React.FormEvent) {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (loading) return
 
-    if (!form.email || !form.password) {
+    const email = emailRef.current?.value.trim()
+    const password = passwordRef.current?.value
+
+    if (!email || !password) {
       setError('Email and password required')
-      toast.error('Email and password required')
       return
     }
 
@@ -55,172 +62,96 @@ function BizPageInner() {
     setError('Checking credentials...')
 
     try {
-      console.log('1. Starting login for:', form.email)
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: form.email,
-        password: form.password,
-      })
-
-      console.log('2. Supabase response:', { hasError: !!error, hasUser: !!data?.user })
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
       if (error) {
-        console.error('3. Auth error:', error.message)
+        setError(error.message)
         setLoading(false)
-        setError(`Login failed: ${error.message}`)
-        toast.error(error.message)
         return
       }
 
-      if (!data.user?.id) {
-        console.error('3. No user ID returned')
+      if (data.user) {
+        router.push('/biz/dashboard')
+      } else {
+        setError('Login failed')
         setLoading(false)
-        setError('Account not found. Please sign up first.')
-        toast.error('Account not found')
-        return
       }
-
-      console.log('3. Login successful, redirecting...')
-      setError('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login error')
       setLoading(false)
-      // Navigate after a brief delay to ensure state is updated
-      await new Promise(resolve => setTimeout(resolve, 100))
-      router.push('/biz/dashboard')
-    } catch (err: unknown) {
-      console.error('4. Exception during login:', err)
-      setLoading(false)
-      const msg = err instanceof Error ? err.message : 'Connection error'
-      setError(`Error: ${msg}`)
-      toast.error(msg)
     }
   }
 
-  async function handleSignup(e: React.FormEvent) {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
+    if (loading) return
+
     if (signupStep === 'account') {
-      // Validate email and password before proceeding
-      if (!form.email || !form.password) {
-        setError('Email and password are required')
-        toast.error('Email and password are required')
+      const email = emailRef.current?.value.trim()
+      const password = passwordRef.current?.value
+
+      if (!email || !password) {
+        setError('Email and password required')
         return
       }
-      if (form.password.length < 8) {
+      if (password.length < 8) {
         setError('Password must be at least 8 characters')
-        toast.error('Password must be at least 8 characters')
         return
       }
+      setError('')
       setSignupStep('business')
       return
     }
 
-    // Validate business details
-    if (!form.business_name || !form.category) {
-      setError('Business name and category are required')
-      toast.error('Business name and category are required')
+    const email = emailRef.current?.value.trim()
+    const password = passwordRef.current?.value
+    const businessName = businessNameRef.current?.value.trim()
+    const category = categoryRef.current?.value
+    const address = addressRef.current?.value.trim()
+
+    if (!businessName || !category) {
+      setError('Business name and category required')
       return
     }
 
     setLoading(true)
+    setError('Creating account...')
+
     try {
-      console.log('Starting signup for:', form.email)
-      setError('Creating your account...')
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email!,
+        password: password!,
+      })
 
-      // Step 1: Create auth user
-      try {
-        console.log('Supabase config:', {
-          url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-          hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-        })
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: form.email,
-          password: form.password,
-        })
-        console.log('Auth response:', { authError, userId: authData?.user?.id })
+      if (authError) throw new Error(authError.message)
+      if (!authData.user?.id) throw new Error('Signup failed')
 
-        if (authError) {
-          const errorMsg = authError.message || JSON.stringify(authError) || 'Unknown auth error'
-          throw new Error(`Auth failed: ${errorMsg}`)
-        }
-        if (!authData.user) throw new Error('Auth succeeded but no user returned')
+      setError('Setting up business...')
 
-        // Step 2: Create merchant record via API
-        try {
-          console.log('Creating merchant for user:', authData.user.id)
-          setError('Setting up your business profile...')
+      const res = await fetch('/api/merchants/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: authData.user.id,
+          business_name: businessName,
+          category,
+          address: address || null,
+          subscription_tier: planRef.current,
+          subscription_status: 'trialing',
+        }),
+      })
 
-          const merchantResponse = await fetch('/api/merchants/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_id: authData.user.id,
-              business_name: form.business_name,
-              category: form.category,
-              address: form.address || null,
-              subscription_tier: form.plan,
-              subscription_status: 'trialing',
-            }),
-          })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Setup failed')
 
-          console.log('Merchant response status:', merchantResponse.status)
-          const merchantData = await merchantResponse.json()
-          console.log('Merchant API response:', merchantData)
-
-          if (!merchantResponse.ok) {
-            throw new Error(`API Error (${merchantResponse.status}): ${merchantData.error || 'Unknown error'}\n\nDetails: ${merchantData.details || ''}`)
-          }
-
-          console.log('Merchant created:', merchantData)
-
-          setError('')
-          toast.success('Welcome to MagicFishbowl! Redirecting to your dashboard...')
-          console.log('Signup successful, redirecting to dashboard')
-
-          // Use a longer timeout to ensure auth is synced
-          setTimeout(() => {
-            console.log('Executing redirect to /biz/dashboard')
-            router.push('/biz/dashboard')
-          }, 1500)
-        } catch (merchantErr: unknown) {
-          throw new Error(`Merchant creation failed: ${merchantErr instanceof Error ? merchantErr.message : 'Unknown error'}`)
-        }
-      } catch (authErr: unknown) {
-        throw authErr
-      }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Signup failed - unknown error'
-      console.error('Signup error:', err)
-      setError(message)
-      toast.error(message)
-    } finally {
+      setError('')
+      router.push('/biz/dashboard')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Signup failed')
       setLoading(false)
     }
   }
 
-  const showAccountStep = mode === 'login' || signupStep === 'account'
-  const showBusinessStep = mode === 'signup' && signupStep === 'business'
-
-  // Show page error if one occurred
-  if (pageError) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-brand-50 to-white flex items-center justify-center p-4">
-        <div className="max-w-md text-center">
-          <div className="text-5xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h1>
-          <p className="text-red-600 mb-6 text-sm">{pageError}</p>
-          <button
-            onClick={() => {
-              setPageError('')
-              window.location.reload()
-            }}
-            className="bg-brand-600 text-white py-2 px-4 rounded-lg hover:bg-brand-700 font-semibold"
-          >
-            Refresh Page
-          </button>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-brand-50 to-white flex flex-col">
@@ -282,12 +213,11 @@ function BizPageInner() {
                 <div>
                   <label className="label">Email</label>
                   <input
+                    ref={emailRef}
                     type="email"
                     required
                     className="input"
                     placeholder="you@business.com"
-                    value={form.email}
-                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                     autoComplete="email"
                   />
                 </div>
@@ -295,13 +225,12 @@ function BizPageInner() {
                   <label className="label">Password</label>
                   <div className="relative">
                     <input
+                      ref={passwordRef}
                       type={showPass ? 'text' : 'password'}
                       required
                       minLength={8}
                       className="input pr-10"
                       placeholder="Min. 8 characters"
-                      value={form.password}
-                      onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                       autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                     />
                     <button
@@ -321,13 +250,17 @@ function BizPageInner() {
               <>
                 <div>
                   <label className="label">Business Name</label>
-                  <input type="text" required className="input" placeholder="The Local Bakery"
-                    value={form.business_name} onChange={(e) => setForm((f) => ({ ...f, business_name: e.target.value }))} />
+                  <input
+                    ref={businessNameRef}
+                    type="text"
+                    required
+                    className="input"
+                    placeholder="The Local Bakery"
+                  />
                 </div>
                 <div>
                   <label className="label">Category</label>
-                  <select required className="input" value={form.category}
-                    onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
+                  <select ref={categoryRef} required className="input">
                     <option value="">Select a category...</option>
                     {CATEGORIES.map((c) => (
                       <option key={c.value} value={c.value}>{c.label}</option>
@@ -336,8 +269,12 @@ function BizPageInner() {
                 </div>
                 <div>
                   <label className="label">Business Address</label>
-                  <input type="text" className="input" placeholder="123 Main St, City, State"
-                    value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} />
+                  <input
+                    ref={addressRef}
+                    type="text"
+                    className="input"
+                    placeholder="123 Main St, City, State"
+                  />
                 </div>
                 <div>
                   <label className="label">Plan</label>
@@ -350,9 +287,9 @@ function BizPageInner() {
                       <button
                         key={p.value}
                         type="button"
-                        onClick={() => setForm((f) => ({ ...f, plan: p.value }))}
+                        onClick={() => { planRef.current = p.value }}
                         className={`rounded-xl border-2 p-3 text-center transition ${
-                          form.plan === p.value
+                          planRef.current === p.value
                             ? 'border-brand-500 bg-brand-50 text-brand-700'
                             : 'border-gray-200 text-gray-600'
                         }`}
@@ -396,10 +333,3 @@ function BizPageInner() {
   )
 }
 
-export default function BizPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-gradient-to-b from-brand-50 to-white" />}>
-      <BizPageInner />
-    </Suspense>
-  )
-}
