@@ -149,7 +149,6 @@ function BizPageInner() {
             throw new Error(`API Error (${merchantResponse.status}): ${merchantData.error || 'Unknown error'}\n\nDetails: ${merchantData.details || ''}`)
           }
 
-          const merchantData = await merchantResponse.json()
           console.log('Merchant created:', merchantData)
 
           toast.success('Welcome to MagicFishbowl! Redirecting to your dashboard...')
