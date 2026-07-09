@@ -44,41 +44,46 @@ function BizPageInner() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
+
+    // Don't submit if form is incomplete
+    if (!form.email || !form.password) {
+      setError('Email and password required')
+      return
+    }
+
     setError('')
     setLoading(true)
+
     try {
-      console.log('Attempting login with:', form.email)
-      setError('Connecting to Supabase...')
+      console.log('Login attempt:', form.email)
+      setError('Checking credentials...')
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: form.email,
         password: form.password,
       })
-      console.log('Login response:', { error, userId: data?.user?.id })
 
       if (error) {
-        const errMsg = error.message || JSON.stringify(error)
-        console.error('Login error:', errMsg)
-        setError(`Login failed: ${errMsg}`)
-        toast.error(errMsg)
+        console.error('Login error:', error.message)
+        setError(`Login failed: ${error.message}`)
+        setLoading(false)
         return
       }
 
       if (!data.user) {
-        setError('Login succeeded but no user data returned')
-        toast.error('Login error: no user data')
+        console.error('No user returned from login')
+        setError('Login error: user account not found')
+        setLoading(false)
         return
       }
 
-      console.log('Login successful, redirecting to dashboard')
-      setError('')
+      console.log('Login successful, user:', data.user.id)
+      // Don't clear error immediately - let redirect happen
       router.push('/biz/dashboard')
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : String(err)
-      console.error('Login exception:', err)
-      setError(`Error: ${errMsg}`)
-      toast.error(errMsg)
-    } finally {
+      console.error('Login error:', err)
+      const msg = err instanceof Error ? err.message : 'Login failed'
+      setError(msg)
       setLoading(false)
     }
   }
@@ -226,7 +231,9 @@ function BizPageInner() {
             <p className="text-sm text-gray-500 mt-1">
               {mode === 'login'
                 ? 'Access your MagicFishbowl dashboard'
-                : '14-day free trial · No credit card required'}
+                : signupStep === 'account'
+                ? 'Step 1: Create your account'
+                : 'Step 2: Business details'}
             </p>
           </div>
 
