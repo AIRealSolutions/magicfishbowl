@@ -167,7 +167,6 @@ export default function BizPage() {
                 {error || 'Processing...'}
               </div>
             )}
-            </p>
           </div>
 
           {/* Error message */}
@@ -193,9 +192,8 @@ export default function BizPage() {
             </button>
           </div>
 
-          {/* Always show form if not in error state */}
-          {!pageError && (
-            <form onSubmit={mode === 'login' ? handleLogin : handleSignup} className="space-y-4">
+          {/* Form */}
+          <form onSubmit={mode === 'login' ? handleLogin : handleSignup} className="space-y-4">
             {/* Signup step 1: Account */}
             {(mode === 'login' || signupStep === 'account') && (
               <>
@@ -294,7 +292,7 @@ export default function BizPage() {
 
             <button
               type="submit"
-              disabled={loading || (mode === 'signup' && signupStep === 'business' && (!form.business_name || !form.category))}
+              disabled={loading || (mode === 'signup' && signupStep === 'business' && (!businessNameRef.current?.value || !categoryRef.current?.value))}
               className="btn-primary w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
@@ -315,7 +313,6 @@ export default function BizPage() {
               </button>
             )}
             </form>
-          )}
         </div>
       </div>
     </div>
