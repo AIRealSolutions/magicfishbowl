@@ -45,46 +45,53 @@ function BizPageInner() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
 
-    // Don't submit if form is incomplete
     if (!form.email || !form.password) {
       setError('Email and password required')
+      toast.error('Email and password required')
       return
     }
 
-    setError('')
     setLoading(true)
+    setError('Checking credentials...')
 
     try {
-      console.log('Login attempt:', form.email)
-      setError('Checking credentials...')
+      console.log('1. Starting login for:', form.email)
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: form.email,
         password: form.password,
       })
 
+      console.log('2. Supabase response:', { hasError: !!error, hasUser: !!data?.user })
+
       if (error) {
-        console.error('Login error:', error.message)
+        console.error('3. Auth error:', error.message)
+        setLoading(false)
         setError(`Login failed: ${error.message}`)
-        setLoading(false)
+        toast.error(error.message)
         return
       }
 
-      if (!data.user) {
-        console.error('No user returned from login')
-        setError('Login error: user account not found')
+      if (!data.user?.id) {
+        console.error('3. No user ID returned')
         setLoading(false)
+        setError('Account not found. Please sign up first.')
+        toast.error('Account not found')
         return
       }
 
-      console.log('Login successful, user:', data.user.id)
-      // Don't clear error immediately - let redirect happen
+      console.log('3. Login successful, redirecting...')
+      setError('')
+      setLoading(false)
+      // Navigate after a brief delay to ensure state is updated
+      await new Promise(resolve => setTimeout(resolve, 100))
       router.push('/biz/dashboard')
     } catch (err: unknown) {
-      console.error('Login error:', err)
-      const msg = err instanceof Error ? err.message : 'Login failed'
-      setError(msg)
+      console.error('4. Exception during login:', err)
       setLoading(false)
+      const msg = err instanceof Error ? err.message : 'Connection error'
+      setError(`Error: ${msg}`)
+      toast.error(msg)
     }
   }
 
@@ -235,6 +242,12 @@ function BizPageInner() {
                 ? 'Step 1: Create your account'
                 : 'Step 2: Business details'}
             </p>
+            {loading && (
+              <div className="mt-2 text-xs bg-blue-100 text-blue-700 py-1 px-2 rounded inline-block">
+                {error || 'Processing...'}
+              </div>
+            )}
+            </p>
           </div>
 
           {/* Error message */}
@@ -260,7 +273,8 @@ function BizPageInner() {
             </button>
           </div>
 
-          {mode === 'login' || (mode === 'signup' && signupStep === 'account') || (mode === 'signup' && signupStep === 'business') ? (
+          {/* Always show form if not in error state */}
+          {!pageError && (
             <form onSubmit={mode === 'login' ? handleLogin : handleSignup} className="space-y-4">
             {/* Signup step 1: Account */}
             {(mode === 'login' || signupStep === 'account') && (
@@ -375,19 +389,6 @@ function BizPageInner() {
               </button>
             )}
             </form>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-red-600 mb-4">Form state error</p>
-              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded break-all">
-                mode: {mode} | step: {signupStep} | show account: {String(showAccountStep)} | show business: {String(showBusinessStep)}
-              </div>
-              <button
-                onClick={() => window.location.reload()}
-                className="mt-4 text-sm text-blue-600 underline"
-              >
-                Refresh Page
-              </button>
-            </div>
           )}
         </div>
       </div>
