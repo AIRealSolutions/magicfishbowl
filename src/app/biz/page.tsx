@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react'
@@ -34,17 +34,6 @@ export default function BizPage() {
   const planRef = useRef<string>(initialPlan)
 
   const supabase = createClient()
-
-  // Global error handler for any unhandled errors
-  useEffect(() => {
-    const handleError = (event: ErrorEvent) => {
-      console.error('Unhandled error:', event.error)
-      setPageError(`Error: ${event.error?.message || 'Something went wrong'}`)
-    }
-
-    window.addEventListener('error', handleError)
-    return () => window.removeEventListener('error', handleError)
-  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
