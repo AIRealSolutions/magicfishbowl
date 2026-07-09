@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MapPin, QrCode, Zap, Users, TrendingUp, Shield, Star, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { BarChart3, Users, Zap, TrendingUp, ArrowRight, CheckCircle2 } from 'lucide-react'
 
 export default function HomePage() {
   return (
@@ -12,13 +12,13 @@ export default function HomePage() {
             <span>MagicFishbowl</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
-            <Link href="/discover" className="hover:text-brand-600 transition-colors">Find Deals</Link>
-            <Link href="/biz" className="hover:text-brand-600 transition-colors">For Businesses</Link>
+            <a href="#features" className="hover:text-brand-600 transition-colors">Features</a>
+            <a href="#pricing" className="hover:text-brand-600 transition-colors">Pricing</a>
             <Link href="/biz?login=1" className="hover:text-brand-600 transition-colors">Sign In</Link>
           </nav>
           <div className="flex items-center gap-3">
-            <Link href="/join" className="btn-primary text-sm">
-              Get Free Card
+            <Link href="/biz" className="btn-primary text-sm">
+              Get Started
             </Link>
           </div>
         </div>
@@ -33,55 +33,54 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-4xl px-4 text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
             <Zap className="h-4 w-4 text-yellow-300" />
-            The fishbowl card drop — reinvented for the digital age
+            Simple offer management for local businesses
           </div>
           <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl">
-            Turn Foot Traffic Into
-            <span className="block text-yellow-300">Loyal Customers</span>
+            Grow Your Business With
+            <span className="block text-yellow-300">Better Customer Data</span>
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg text-brand-100">
-            Businesses offer free items or discounts. Customers scan in and get rewarded.
-            You capture the lead, trigger automated follow-up, and grow your list — automatically.
+            Create simple offers, track customer buying habits, and grow your email list. No complexity. Just results.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/join" className="btn-primary text-base px-8 py-4 shadow-lg shadow-brand-900/30">
-              Get My Free Card
+            <Link href="/biz" className="btn-primary text-base px-8 py-4 shadow-lg shadow-brand-900/30">
+              Start Free Trial
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/biz" className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/20">
-              List Your Business
+            <Link href="/biz?login=1" className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/20">
+              Sign In
             </Link>
           </div>
-          <p className="mt-4 text-sm text-brand-200">No app to download · Free for consumers · 14-day trial for businesses</p>
+          <p className="mt-4 text-sm text-brand-200">14-day free trial · No credit card required</p>
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-gray-50">
+      <section id="features" className="py-20 bg-gray-50">
         <div className="mx-auto max-w-6xl px-4">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">How It Works</h2>
-            <p className="text-gray-500 max-w-xl mx-auto">Three simple steps — no app required.</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Get Started in Minutes</h2>
+            <p className="text-gray-500 max-w-xl mx-auto">Three simple steps to launch your offers.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 step: '1',
-                icon: <QrCode className="h-8 w-8 text-brand-600" />,
-                title: 'Get Your Free Card',
-                desc: 'Register on mobile web in under 60 seconds. Get a universal QR card saved to your phone.',
+                icon: <Users className="h-8 w-8 text-brand-600" />,
+                title: 'Sign Up',
+                desc: 'Create your business account and set your basic info in under a minute.',
               },
               {
                 step: '2',
-                icon: <MapPin className="h-8 w-8 text-fish-coral" />,
-                title: 'Find Local Deals',
-                desc: 'Browse the map for participating businesses offering free items or discounts near you.',
+                icon: <Zap className="h-8 w-8 text-fish-coral" />,
+                title: 'Create Offers',
+                desc: 'Add simple deals or promotions. Set limits and expiration dates as needed.',
               },
               {
                 step: '3',
-                icon: <Zap className="h-8 w-8 text-fish-purple" />,
-                title: 'Scan & Claim',
-                desc: 'Show your QR at the register. Staff scans and confirms — you get your reward instantly.',
+                icon: <TrendingUp className="h-8 w-8 text-fish-purple" />,
+                title: 'Track Customers',
+                desc: 'Watch customer engagement, collect contact info, and grow your email list.',
               },
             ].map((item) => (
               <div key={item.step} className="card text-center">
@@ -102,22 +101,21 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
             <div>
-              <div className="mb-3 text-sm font-semibold uppercase tracking-widest text-brand-600">For Local Businesses</div>
+              <div className="mb-3 text-sm font-semibold uppercase tracking-widest text-brand-600">Built for Businesses</div>
               <h2 className="text-3xl font-bold text-gray-900 mb-5">
-                Your Digital Fishbowl.<br />Automated.
+                Easy Offer Management.<br />Real Customer Insights.
               </h2>
               <p className="text-gray-500 mb-8">
-                Remember putting a bowl on the counter for business cards? MagicFishbowl does
-                that digitally — with instant lead capture, verified phone numbers, and
-                automated follow-up built in.
+                Stop guessing about your customers. Create simple offers, track who's engaging, and build your email list automatically.
               </p>
               <ul className="space-y-3 mb-8">
                 {[
-                  'Capture verified name, email & phone at every visit',
-                  'Two-step QR + PIN redemption prevents fraud',
-                  'Auto-trigger email & SMS drip sequences',
-                  'Staff scanner tool — no login required for cashiers',
-                  'Consumer discovery map drives new foot traffic',
+                  'Simple offer creation and management',
+                  'Automatic customer data collection',
+                  'Track offers by engagement and redemptions',
+                  'Built-in email and SMS integration',
+                  'Staff-friendly dashboard',
+                  'Export customer lists anytime',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm text-gray-700">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -126,21 +124,21 @@ export default function HomePage() {
                 ))}
               </ul>
               <Link href="/biz" className="btn-primary">
-                Start Free 14-Day Trial
+                Start Your Free Trial
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: <Users className="h-6 w-6 text-brand-600" />, label: 'Leads Captured', value: '2,400+', sub: 'avg per merchant/yr' },
-                { icon: <TrendingUp className="h-6 w-6 text-green-600" />, label: 'Return Visit Rate', value: '68%', sub: 'with drip follow-up' },
-                { icon: <Shield className="h-6 w-6 text-purple-600" />, label: 'Fraud Prevention', value: '4-Layer', sub: 'SMS + PIN + cooldown' },
-                { icon: <Star className="h-6 w-6 text-yellow-500" />, label: 'Setup Time', value: '< 5 min', sub: 'self-service onboarding' },
+                { icon: <BarChart3 className="h-6 w-6 text-brand-600" />, label: 'Simplicity', value: '< 5 min', sub: 'to set up' },
+                { icon: <TrendingUp className="h-6 w-6 text-green-600" />, label: 'Engagement', value: 'Real-time', sub: 'analytics' },
+                { icon: <Users className="h-6 w-6 text-purple-600" />, label: 'Customer Data', value: 'Owned', sub: 'by you' },
+                { icon: <Zap className="h-6 w-6 text-yellow-500" />, label: 'Integration', value: 'Built-in', sub: 'email & SMS' },
               ].map((stat) => (
                 <div key={stat.label} className="card">
                   {stat.icon}
-                  <div className="mt-3 text-2xl font-bold text-gray-900">{stat.value}</div>
-                  <div className="text-sm font-medium text-gray-700">{stat.label}</div>
+                  <div className="mt-3 text-sm font-bold text-gray-900">{stat.value}</div>
+                  <div className="text-xs font-medium text-gray-700">{stat.label}</div>
                   <div className="text-xs text-gray-400 mt-0.5">{stat.sub}</div>
                 </div>
               ))}
@@ -161,17 +159,17 @@ export default function HomePage() {
               {
                 name: 'Starter', price: 49, color: 'border-gray-200',
                 highlight: false,
-                features: ['1 active offer', '2 staff seats', '500 CRM contacts', 'Email campaigns', 'CSV export', 'Discovery map listing'],
+                features: ['Up to 10 active offers', '2 staff members', '1,000 customers', 'Email campaigns', 'CSV export'],
               },
               {
                 name: 'Pro', price: 99, color: 'border-brand-500',
                 highlight: true,
-                features: ['5 active offers', '10 staff seats', '5,000 CRM contacts', 'Email + SMS campaigns', 'Social scheduler', 'Featured map placement add-on'],
+                features: ['Unlimited offers', '10 staff members', '10,000 customers', 'Email + SMS campaigns', 'Priority support'],
               },
               {
-                name: 'Agency', price: 199, color: 'border-gray-200',
+                name: 'Business', price: 199, color: 'border-gray-200',
                 highlight: false,
-                features: ['Unlimited offers', 'Unlimited staff seats', 'Unlimited contacts', '2-way SMS inbox', 'White-label subdomain', 'API access', 'Priority support'],
+                features: ['Unlimited offers', 'Unlimited staff', 'Unlimited customers', 'Custom integrations', 'Dedicated support'],
               },
             ].map((tier) => (
               <div key={tier.name} className={`card border-2 ${tier.color} relative ${tier.highlight ? 'shadow-xl shadow-brand-100' : ''}`}>
@@ -210,16 +208,12 @@ export default function HomePage() {
       {/* CTA */}
       <section className="py-20 bg-brand-700 text-white">
         <div className="mx-auto max-w-2xl px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to fill your digital fishbowl?</h2>
-          <p className="text-brand-200 mb-8">Join hundreds of local businesses already growing their lists with MagicFishbowl.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/biz" className="btn-primary bg-white text-brand-700 hover:bg-brand-50">
-              List Your Business — Free Trial
-            </Link>
-            <Link href="/join" className="btn-outline border-white/40 text-white hover:bg-white/10">
-              Get My Free Consumer Card
-            </Link>
-          </div>
+          <h2 className="text-3xl font-bold mb-4">Ready to grow your business?</h2>
+          <p className="text-brand-200 mb-8">Join local businesses building better customer relationships with MagicFishbowl.</p>
+          <Link href="/biz" className="inline-flex items-center gap-2 btn-primary bg-white text-brand-700 hover:bg-brand-50">
+            Start Your Free Trial
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
 
@@ -232,8 +226,7 @@ export default function HomePage() {
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-gray-700">Privacy</Link>
             <Link href="/terms" className="hover:text-gray-700">Terms</Link>
-            <Link href="/discover" className="hover:text-gray-700">Find Deals</Link>
-            <Link href="/biz" className="hover:text-gray-700">For Business</Link>
+            <Link href="/biz" className="hover:text-gray-700">For Businesses</Link>
           </div>
           <div>© {new Date().getFullYear()} MagicFishbowl</div>
         </div>
