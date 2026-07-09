@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  LayoutDashboard, Tag, Users, ScanLine, CreditCard,
+  LayoutDashboard, Tag, Users, CreditCard,
   LogOut, Menu, X, UserCog, Settings
 } from 'lucide-react'
 import { useState } from 'react'
@@ -24,7 +24,6 @@ const NAV = [
   { href: '/biz/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/biz/offers', label: 'Offers', icon: Tag },
   { href: '/biz/contacts', label: 'Contacts', icon: Users },
-  { href: '/biz/scan', label: 'Scanner', icon: ScanLine },
   { href: '/biz/staff', label: 'Staff', icon: UserCog },
   { href: '/biz/billing', label: 'Billing', icon: CreditCard },
   { href: '/biz/settings', label: 'Settings', icon: Settings },

@@ -28,34 +28,12 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Protect /biz routes (merchant dashboard)
+  // Protect /biz dashboard routes (business admin area)
   // Allow /biz (public signup/login form)
   // Protect everything under /biz/ except the public form
   if (pathname.startsWith('/biz/')) {
     if (!user) {
       return NextResponse.redirect(new URL('/biz?login=1', request.url))
-    }
-  }
-
-  // Protect /card route (member virtual card)
-  if (pathname === '/card') {
-    if (!user) {
-      return NextResponse.redirect(new URL('/join', request.url))
-    }
-  }
-
-  // White-label subdomain detection
-  const host = request.headers.get('host') ?? ''
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'magicfishbowl.com'
-  const rootHost = appUrl.replace(/^https?:\/\//, '')
-
-  if (host !== rootHost && host.endsWith(`.${rootHost}`)) {
-    const subdomain = host.replace(`.${rootHost}`, '')
-    if (subdomain !== 'www' && subdomain !== 'staging') {
-      // Rewrite to /[subdomain] route for white-label
-      const url = request.nextUrl.clone()
-      url.pathname = `/org/${subdomain}${pathname}`
-      return NextResponse.rewrite(url)
     }
   }
 
