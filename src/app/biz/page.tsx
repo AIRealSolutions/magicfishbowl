@@ -236,14 +236,14 @@ function BizPageInner() {
               Sign Up
             </button>
             <button
-              onClick={() => { setMode('login'); setError(''); }}
+              onClick={() => { setMode('login'); setError(''); setSignupStep('account'); }}
               className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${mode === 'login' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`}
             >
               Sign In
             </button>
           </div>
 
-          {showAccountStep || showBusinessStep ? (
+          {mode === 'login' || (mode === 'signup' && signupStep === 'account') || (mode === 'signup' && signupStep === 'business') ? (
             <form onSubmit={mode === 'login' ? handleLogin : handleSignup} className="space-y-4">
             {/* Signup step 1: Account */}
             {(mode === 'login' || signupStep === 'account') && (
@@ -359,8 +359,17 @@ function BizPageInner() {
             )}
             </form>
           ) : (
-            <div className="text-center py-8 text-red-600">
-              <p>Form error. Try refreshing the page.</p>
+            <div className="text-center py-8">
+              <p className="text-red-600 mb-4">Form state error</p>
+              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded break-all">
+                mode: {mode} | step: {signupStep} | show account: {String(showAccountStep)} | show business: {String(showBusinessStep)}
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 text-sm text-blue-600 underline"
+              >
+                Refresh Page
+              </button>
             </div>
           )}
         </div>
