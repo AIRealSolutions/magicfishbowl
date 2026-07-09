@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react'
@@ -10,7 +10,7 @@ import { CATEGORIES } from '@/lib/utils'
 
 type Mode = 'login' | 'signup'
 
-export default function BizPage() {
+function BizPageInner() {
   const router = useRouter()
   const params = useSearchParams()
   const formRef = useRef<HTMLFormElement>(null)
@@ -319,3 +319,14 @@ export default function BizPage() {
   )
 }
 
+export default function BizPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-brand-50 to-white flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-brand-600" />
+      </div>
+    }>
+      <BizPageInner />
+    </Suspense>
+  )
+}
