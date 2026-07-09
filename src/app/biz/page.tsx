@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react'
@@ -370,5 +370,9 @@ function BizPageInner() {
 }
 
 export default function BizPage() {
-  return <BizPageInner />
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-b from-brand-50 to-white" />}>
+      <BizPageInner />
+    </Suspense>
+  )
 }
