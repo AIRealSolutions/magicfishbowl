@@ -48,6 +48,8 @@ function BizPageInner() {
     setLoading(true)
     try {
       console.log('Attempting login with:', form.email)
+      setError('Connecting to Supabase...')
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: form.email,
         password: form.password,
@@ -57,7 +59,7 @@ function BizPageInner() {
       if (error) {
         const errMsg = error.message || JSON.stringify(error)
         console.error('Login error:', errMsg)
-        setError(errMsg)
+        setError(`Login failed: ${errMsg}`)
         toast.error(errMsg)
         return
       }
@@ -69,11 +71,12 @@ function BizPageInner() {
       }
 
       console.log('Login successful, redirecting to dashboard')
+      setError('')
       router.push('/biz/dashboard')
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : 'Login failed'
+      const errMsg = err instanceof Error ? err.message : String(err)
       console.error('Login exception:', err)
-      setError(errMsg)
+      setError(`Error: ${errMsg}`)
       toast.error(errMsg)
     } finally {
       setLoading(false)
@@ -86,10 +89,12 @@ function BizPageInner() {
     if (signupStep === 'account') {
       // Validate email and password before proceeding
       if (!form.email || !form.password) {
+        setError('Email and password are required')
         toast.error('Email and password are required')
         return
       }
       if (form.password.length < 8) {
+        setError('Password must be at least 8 characters')
         toast.error('Password must be at least 8 characters')
         return
       }
@@ -99,6 +104,7 @@ function BizPageInner() {
 
     // Validate business details
     if (!form.business_name || !form.category) {
+      setError('Business name and category are required')
       toast.error('Business name and category are required')
       return
     }
@@ -106,6 +112,7 @@ function BizPageInner() {
     setLoading(true)
     try {
       console.log('Starting signup for:', form.email)
+      setError('Creating your account...')
 
       // Step 1: Create auth user
       try {
@@ -128,6 +135,8 @@ function BizPageInner() {
         // Step 2: Create merchant record via API
         try {
           console.log('Creating merchant for user:', authData.user.id)
+          setError('Setting up your business profile...')
+
           const merchantResponse = await fetch('/api/merchants/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -151,6 +160,7 @@ function BizPageInner() {
 
           console.log('Merchant created:', merchantData)
 
+          setError('')
           toast.success('Welcome to MagicFishbowl! Redirecting to your dashboard...')
           console.log('Signup successful, redirecting to dashboard')
 
