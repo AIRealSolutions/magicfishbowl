@@ -217,17 +217,34 @@ function BizPageInner() {
               <>
                 <div>
                   <label className="label">Email</label>
-                  <input type="email" required className="input" placeholder="you@business.com"
-                    value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+                  <input
+                    type="email"
+                    required
+                    className="input"
+                    placeholder="you@business.com"
+                    value={form.email}
+                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                    autoComplete="email"
+                  />
                 </div>
                 <div>
                   <label className="label">Password</label>
                   <div className="relative">
-                    <input type={showPass ? 'text' : 'password'} required minLength={8} className="input pr-10"
+                    <input
+                      type={showPass ? 'text' : 'password'}
+                      required
+                      minLength={8}
+                      className="input pr-10"
                       placeholder="Min. 8 characters"
-                      value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
-                    <button type="button" onClick={() => setShowPass(!showPass)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      value={form.password}
+                      onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                      autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPass(!showPass)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    >
                       {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
