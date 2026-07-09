@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react'
@@ -300,9 +300,5 @@ function BizPageInner() {
 }
 
 export default function BizPage() {
-  return (
-    <Suspense>
-      <BizPageInner />
-    </Suspense>
-  )
+  return <BizPageInner />
 }
