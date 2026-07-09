@@ -35,14 +35,34 @@ function BizPageInner() {
     setError('')
     setLoading(true)
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Attempting login with:', form.email)
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: form.email,
         password: form.password,
       })
-      if (error) throw error
+      console.log('Login response:', { error, userId: data?.user?.id })
+
+      if (error) {
+        const errMsg = error.message || JSON.stringify(error)
+        console.error('Login error:', errMsg)
+        setError(errMsg)
+        toast.error(errMsg)
+        return
+      }
+
+      if (!data.user) {
+        setError('Login succeeded but no user data returned')
+        toast.error('Login error: no user data')
+        return
+      }
+
+      console.log('Login successful, redirecting to dashboard')
       router.push('/biz/dashboard')
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Invalid email or password')
+      const errMsg = err instanceof Error ? err.message : 'Login failed'
+      console.error('Login exception:', err)
+      setError(errMsg)
+      toast.error(errMsg)
     } finally {
       setLoading(false)
     }
