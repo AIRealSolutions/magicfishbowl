@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react'
@@ -18,6 +18,7 @@ function BizPageInner() {
   const [showPass, setShowPass] = useState(false)
   const [signupStep, setSignupStep] = useState<'account' | 'business'>('account')
   const [error, setError] = useState<string>('')
+  const [pageError, setPageError] = useState<string>('')
 
   const [form, setForm] = useState({
     email: '',
@@ -29,6 +30,17 @@ function BizPageInner() {
   })
 
   const supabase = createClient()
+
+  // Global error handler for any unhandled errors
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error('Unhandled error:', event.error)
+      setPageError(`Error: ${event.error?.message || 'Something went wrong'}`)
+    }
+
+    window.addEventListener('error', handleError)
+    return () => window.removeEventListener('error', handleError)
+  }, [])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -166,6 +178,28 @@ function BizPageInner() {
 
   const showAccountStep = mode === 'login' || signupStep === 'account'
   const showBusinessStep = mode === 'signup' && signupStep === 'business'
+
+  // Show page error if one occurred
+  if (pageError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-brand-50 to-white flex items-center justify-center p-4">
+        <div className="max-w-md text-center">
+          <div className="text-5xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h1>
+          <p className="text-red-600 mb-6 text-sm">{pageError}</p>
+          <button
+            onClick={() => {
+              setPageError('')
+              window.location.reload()
+            }}
+            className="bg-brand-600 text-white py-2 px-4 rounded-lg hover:bg-brand-700 font-semibold"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-brand-50 to-white flex flex-col">
